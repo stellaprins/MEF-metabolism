@@ -1,2 +1,0 @@
-Reactions	WTlin	G12Dlin	G12Vlin	Q61Llin
-EX_glc_D[e]	-2.227	-4.281	-2.344	-3.201

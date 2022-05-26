@@ -1,5 +1,0 @@
-Reactions	WTlin	G12Dlin	G12Vlin	Q61Llin
-EX_glc_D[e]	-2.227	-4.281	-2.344	-3.201
-EX_gln_L[e]	-.3521	-.2974	-.2867	-.3508
-EX_glu_L[e]	.0529	.0504	.0432	.0698
-EX_lac_L[e]	5.297	6.027	4.104	6.229

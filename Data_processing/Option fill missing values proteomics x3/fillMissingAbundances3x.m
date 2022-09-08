@@ -233,7 +233,7 @@ for sampleName = sample
                             case "Not detected"
                                 data{count,sampleName} = 0;
                             otherwise
-                                data{count,sampleName} = process1Min;
+                                data{count,sampleName} = process3Min;
                         end     
                     end
                 else

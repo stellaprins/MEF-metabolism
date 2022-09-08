@@ -289,9 +289,8 @@ dataKcat = dataAtlasPC;       % just do for dataAtlasPC at least initially
 % Add columns to dataKcat. 
 dummyCol = zeros(size(dataKcat,1),1); 
 
-sampleID = dataAtlas.Properties.VariableNames(5:16); % to include all abundance data columns
-for sampleCount = 1:size(sampleID, 2)
-    colName = strcat(sampleID{sampleCount}, 'mod');
+for sampleCount = 1:size(sample, 2)
+    colName = strcat(sample{sampleCount}, 'mod');
     dataKcat = addvars(dataKcat,dummyCol);
     dataKcat.Properties.VariableNames{'dummyCol'} = colName;
 end

@@ -299,7 +299,7 @@ dataKcat.Properties.VariableNames{'dummyCol'} = 'kcat';
 
 % read table to calculate median kcat
 ATPases = readtable('EnerSysGO kinetic data.xlsx'); % read in rules
-[gene, kcat, ~, ~] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sampleID{1}); % call simply to get gene list and kcat
+[gene, kcat, ~, ~] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sample{1}); % call simply to get gene list and kcat
 kcatMedian = median(kcat);
 
 % go through gene table line by line and populate new table. This is very
@@ -309,17 +309,17 @@ for geneCount = 1:size(dataKcat,1)
   if ~ismember(dataRaw.NEWSymbol{geneCount}, gene)  
     dataKcat.kcat(geneCount) = kcatMedian;
     % all abundances stay as they were
-    for sampleCount = 1:size(sampleID, 2)
-        colName = strcat(sampleID{sampleCount}, 'mod');
-        dataKcat.(colName)(geneCount) = dataKcat.(sampleID{sampleCount})(geneCount);
+    for sampleCount = 1:size(sample, 2)
+        colName = strcat(sample{sampleCount}, 'mod');
+        dataKcat.(colName)(geneCount) = dataKcat.(sample{scdampleCount})(geneCount);
     end
   else     
       kcatMod = lookup(gene,dataRaw.NEWSymbol{geneCount}, kcat);
       dataKcat.kcat(geneCount) = kcatMod;
-      for sampleCount = 1:size(sampleID, 2)
-        [gene, kcat, abundance, abundanceStarKcat] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sampleID{sampleCount});
+      for sampleCount = 1:size(sample, 2)
+        [gene, kcat, abundance, abundanceStarKcat] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sample{sampleCount});
         abundanceMod = lookup(gene,dataRaw.NEWSymbol{geneCount}, abundance);
-        colName = strcat(sampleID{sampleCount}, 'mod');
+        colName = strcat(sample{sampleCount}, 'mod');
         dataKcat.(colName)(geneCount) = cell2mat(abundanceMod);
       end
       kcatMod = lookup(gene,dataRaw.NEWSymbol{geneCount}, kcat);    % kcat needs updating only once
@@ -329,11 +329,11 @@ end
 
 % Now compute the abundance Kcat products
 
-for sampleCount = 1:size(sampleID, 2)                   
-    colName = strcat(sampleID{sampleCount}, 'AsK');                 % set up column names
+for sampleCount = 1:size(sample, 2)                   
+    colName = strcat(sample{sampleCount}, 'AsK');                 % set up column names
     dataKcat = addvars(dataKcat,dummyCol);
     dataKcat.Properties.VariableNames{'dummyCol'} = colName;
-    sourceName = strcat(sampleID{sampleCount}, 'mod'); 
+    sourceName = strcat(sample{sampleCount}, 'mod'); 
     dataKcat.(colName) = dataKcat.kcat.* dataKcat.(sourceName);
 end
 

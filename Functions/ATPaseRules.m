@@ -10,7 +10,7 @@ function [gene, kcat, abundance, abundanceStarKcat] = ATPaseRules(ruleTable, dat
 %                       AverageWt = sampleColumn
 
 
-% In a future version the multiplier vector might be an arrgument as well
+% In a future version the multiplier vector might be an argument as well
 
 geneRules = unique(ruleTable.AVERAGEGROUP_GENERULE);
 geneRules = geneRules(2:end);           % lose the leading blank relating to where there are no rules

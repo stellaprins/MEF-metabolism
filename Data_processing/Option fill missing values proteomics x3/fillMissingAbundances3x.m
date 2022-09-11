@@ -311,7 +311,7 @@ for geneCount = 1:size(dataKcat,1)
     % all abundances stay as they were
     for sampleCount = 1:size(sample, 2)
         colName = strcat(sample{sampleCount}, 'mod');
-        dataKcat.(colName)(geneCount) = dataKcat.(sample{scdampleCount})(geneCount);
+        dataKcat.(colName)(geneCount) = dataKcat.(sample{sampleCount})(geneCount);
     end
   else     
       kcatMod = lookup(gene,dataRaw.NEWSymbol{geneCount}, kcat);

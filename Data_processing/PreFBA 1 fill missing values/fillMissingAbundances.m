@@ -29,7 +29,6 @@ sample = data.Properties.VariableNames(5:8);
 
 dataOri = data;
 
-
 P1=[]; % structures to contain summary data about 3 hierarchical levels of process
 P2=[];
 P3=[];
@@ -313,5 +312,5 @@ AsK = dataKcat.kcat.*table2array(dataKcat(:,strcat(sample,'mod')));
 dataKcat(:,10:13) = array2table(AsK) ;
 dataKcat.Properties.VariableNames(10:13) = strcat(sample,'AsK');
 
-save('dataRaw_SP','dataRaw');
-save('dataKcat_SP','dataKcat');
+save('dataRaw','dataRaw');
+save('dataKcat','dataKcat');

@@ -267,7 +267,6 @@ for sampleName = sample
 end
 
 dataAtlas = data;
-
 data = dataOri;
 
 % Code here as an inset if want to use abundances rules for ATPases and
@@ -277,64 +276,42 @@ data = dataOri;
 dataAtlasPC = 100*bsxfun(@rdivide,dataAtlas{:,sample},sum(dataAtlas{:,sample},1,'omitnan'));
 dataAtlasPC = array2table(dataAtlasPC, 'VariableNames', string(sample));
 
-
 % Creates new columns for kcat and modified abundances (which will only
 % change for ATPases.
-% There will be much faster ways of doing this.
 dataKcat = dataAtlasPC;       % just do for dataAtlasPC at least initially
-
-% Add columns to dataKcat. 
-dummyCol = zeros(size(dataKcat,1),1); 
-
-sampleID = dataAtlas.Properties.VariableNames(5:8);
-for sampleCount = 1:size(sampleID, 2)
-    colName = strcat(sampleID{sampleCount}, 'mod');
-    dataKcat = addvars(dataKcat,dummyCol);
-    dataKcat.Properties.VariableNames{'dummyCol'} = colName;
-end
-dataKcat = addvars(dataKcat,dummyCol);
-dataKcat.Properties.VariableNames{'dummyCol'} = 'kcat';
-
 
 % read table to calculate median kcat
 ATPases = readtable('EnerSysGO kinetic data.xlsx'); % read in rules
-[gene, kcat, ~, ~] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sampleID{1}); % call simply to get gene list and kcat
-kcatMedian = median(kcat);
+[gene, kcat, ~, ~] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sample{1}); % call simply to get gene list and kcat
 
-% go through gene table line by line and populate new table. This is very
-% slow and could be faster written
-for geneCount = 1:size(dataKcat,1)
-  % first complete kcat column
-  if ~ismember(dataRaw.NEWSymbol{geneCount}, gene)  
-    dataKcat.kcat(geneCount) = kcatMedian;
-    % all abundances stay as they were
-    for sampleCount = 1:size(sampleID, 2)
-        colName = strcat(sampleID{sampleCount}, 'mod');
-        dataKcat.(colName)(geneCount) = dataKcat.(sampleID{sampleCount})(geneCount);
+% Duplicate kcat columns to later overwrite in modified abundance values (mod)
+dataKcat(:,5:8) = dataAtlasPC;
+dataKcat(:,9)   = array2table(zeros(size(dataKcat,1),1)); 
+dataKcat.Properties.VariableNames(5:8) = strcat(sample,'mod');
+dataKcat.Properties.VariableNames(9) = {'kcat'};
+
+% when kcat value is not available assign medium kcat (=1)
+dataKcat.kcat(~ismember(dataRaw.NEWSymbol, gene)) = median(kcat); 
+
+% assign kcat values for genes in 'EnerSysGO kinetic data.xlsx'
+for g = 1 : length(gene)
+    pos = find(ismember(dataRaw.NEWSymbol, gene(g)));
+    dataKcat.kcat(pos) = kcat(g);
+end
+
+% assign modified abundance values
+for s = 1:size(sample, 2)
+   [gene, kcat, abundance, abundanceStarKcat] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sample{s});
+    for g = 1 : length(gene);
+        pos = find(ismember(dataRaw.NEWSymbol, gene(g)));
+        dataKcat(pos,length(sample)+s)= abundance(g);
     end
-  else     
-      kcatMod = lookup(gene,dataRaw.NEWSymbol{geneCount}, kcat);
-      dataKcat.kcat(geneCount) = kcatMod;
-      for sampleCount = 1:size(sampleID, 2)
-        [gene, kcat, abundance, abundanceStarKcat] = ATPaseRules(ATPases, dataRaw, dataAtlasPC, sampleID{sampleCount});
-        abundanceMod = lookup(gene,dataRaw.NEWSymbol{geneCount}, abundance);
-        colName = strcat(sampleID{sampleCount}, 'mod');
-        dataKcat.(colName)(geneCount) = cell2mat(abundanceMod);
-      end
-      kcatMod = lookup(gene,dataRaw.NEWSymbol{geneCount}, kcat);    % kcat needs updating only once
-      dataKcat.kcat(geneCount) = kcatMod;
-  end
 end
 
-% Now compute the abundance Kcat products
+% compute the abundance Kcat products (AsK)
+AsK = dataKcat.kcat.*table2array(dataKcat(:,strcat(sample,'mod')));
+dataKcat(:,10:13) = array2table(AsK) ;
+dataKcat.Properties.VariableNames(10:13) = strcat(sample,'AsK');
 
-for sampleCount = 1:size(sampleID, 2)                   
-    colName = strcat(sampleID{sampleCount}, 'AsK');                 % set up column names
-    dataKcat = addvars(dataKcat,dummyCol);
-    dataKcat.Properties.VariableNames{'dummyCol'} = colName;
-    sourceName = strcat(sampleID{sampleCount}, 'mod'); 
-    dataKcat.(colName) = dataKcat.kcat.* dataKcat.(sourceName);
-end
-
-save('dataRaw','dataRaw');
-save('dataKcat','dataKcat');
+save('dataRaw_SP','dataRaw');
+save('dataKcat_SP','dataKcat');
